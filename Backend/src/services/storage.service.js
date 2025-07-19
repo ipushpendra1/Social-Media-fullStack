@@ -15,7 +15,7 @@ export async function uploadImage(file,filename) {
         imagekit.upload({
             file: file.buffer, 
             fileName: filename, 
-            folder: "n22-social-application"
+            folder: "social-media"
         }, function(error, result) {
             if (error) {
                 reject(error);
