@@ -7,22 +7,15 @@ import { generateCaption } from "../services/ai.service.js";
 
 
 const createPost = async(req, res)=>{
+    const{mentions} = req.body;
     
     const {file, caption} = await Promise.all([
-        uploadFile(file, uuidv4(), file.originalname),
-        generateCaption(file)
+        uploadFile(req.file, uuidv4()),
+        generateCaption(req.file)
     ])
 
-
-
-
-const finalCaption = body.caption || caption;
-
-const post = new Post({
-    caption: finalCaption,
-    mentions,
-  });
-
+  console.log(req.user);
+  
 
 }
 
