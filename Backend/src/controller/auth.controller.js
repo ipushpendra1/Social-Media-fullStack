@@ -57,7 +57,7 @@ export async function loginController(req, res) {
 
     if(!user){
         return res.status(400).json({
-            message:"Invalid email or password"
+            message:"Invalid Credentials"
         })
     }
   
@@ -65,7 +65,7 @@ export async function loginController(req, res) {
 
     if(!isPasswordValid){
         return res.status(400).json({
-            message:"Invalid email or password"
+            message:"Invalid Credentials"
         })
     }
 
