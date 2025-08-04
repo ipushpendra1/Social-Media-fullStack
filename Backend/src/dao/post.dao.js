@@ -14,3 +14,20 @@ export async function createPost(data) {
 
     
 }
+
+
+
+
+
+
+
+export async function getPosts(skip=0,limit=10){
+    const posts = await postModel.find()
+    .sort({createdAt:-1})
+    .skip(skip)
+    .limit(limit)
+    // .populate("user")
+    // .populate("mentions")
+
+    return posts;
+}

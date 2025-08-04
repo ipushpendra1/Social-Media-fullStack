@@ -1,7 +1,7 @@
 import { uploadFile } from "../services/storage.service.js"
 import {generateCaption} from "../services/ai.service.js"
 import {v4 as uuidv4 } from "uuid"
-import { createPost } from "../dao/post.dao.js"
+import { createPost, getPosts } from "../dao/post.dao.js"
 /* image , mentions? */
 
 export async function createPostController(req,res){
@@ -24,4 +24,19 @@ export async function createPostController(req,res){
         post
     })
     
+}
+
+
+
+
+
+
+
+
+export async function getPostController(req,res){  
+    const posts = await getPosts(req.query.skip, Math.min(req.query.limit,20))  
+    res.status(200).json({
+        message:"Posts fetched successfully",
+        posts
+    })
 }
