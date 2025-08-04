@@ -2,6 +2,8 @@ import { uploadFile } from "../services/storage.service.js"
 import {generateCaption} from "../services/ai.service.js"
 import {v4 as uuidv4 } from "uuid"
 import { createPost, getPosts } from "../dao/post.dao.js"
+import { createComment } from "../dao/comment.dao.js"
+
 /* image , mentions? */
 
 export async function createPostController(req,res){
@@ -30,13 +32,31 @@ export async function createPostController(req,res){
 
 
 
-
-
-
 export async function getPostController(req,res){  
     const posts = await getPosts(req.query.skip, Math.min(req.query.limit,20))  
     res.status(200).json({
         message:"Posts fetched successfully",
         posts
+    })
+}
+
+
+
+
+
+
+export async function createCommentController(req,res){
+    const {post,text} = req.body
+    const user = req.user
+
+    const comment = await createComment({
+        user:user._id,
+        post,
+        text
+    })
+
+    res.status(201).json({
+        message:"Comment created successfully",
+        comment
     })
 }
