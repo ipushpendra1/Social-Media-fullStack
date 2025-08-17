@@ -2,6 +2,7 @@ import express from "express";
 import cookieParser from "cookie-parser"
 import authRoutes from "./routes/auth.routes.js"
 import postRoutes from "./routes/post.routes.js"
+import chatRoutes from "./routes/chat.routes.js"
 
 
 const app = express();
@@ -16,6 +17,8 @@ app.get("/", (req, res) => {
 })
 app.use('/auth',authRoutes)
 app.use('/posts',postRoutes)
+app.use('/chat',chatRoutes)
+
 
 
 
