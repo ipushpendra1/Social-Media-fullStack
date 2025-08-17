@@ -65,7 +65,7 @@ export default function Layout() {
     <div className="layout">
       {/* Desktop sidebar */}
       <aside className="sidebar" role="navigation" aria-label="Primary">
-        <div className="brand">N22</div>
+        <div className="brand">SocioSpace</div>
         <nav className="navlist">
           {links.map(({ to, label, icon }) => (
             <NavLink key={to} to={to} className={({ isActive }) => `navlink${isActive ? ' active' : ''}`}>

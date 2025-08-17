@@ -11,7 +11,7 @@ const linkStyle = ({ isActive }) => ({
 export default function NavBar() {
   return (
     <nav className="nav">
-      <div className="brand">N22 Social</div>
+      <div className="brand">SocioSpace</div>
       <div className="links">
         <NavLink to="/home" style={linkStyle}>Home</NavLink>
         <NavLink to="/chat" style={linkStyle}>Chat</NavLink>
