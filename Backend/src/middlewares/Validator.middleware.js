@@ -36,10 +36,17 @@ export const registerValidator = [
 
 export const getPostValidator = [
     query("limit")
+        .optional()
         .isInt()
         .withMessage("Limit must be an integer")
-        .custom((value) => value >= 1 && value <= 20)
+        .custom((value) => !value || (value >= 1 && value <= 20))
         .withMessage("Limit must be between 1 and 20"),
+    query("skip")
+        .optional()
+        .isInt()
+        .withMessage("Skip must be an integer")
+        .custom((value) => !value || value >= 0)
+        .withMessage("Skip must be 0 or greater"),
     (req, res, next) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {

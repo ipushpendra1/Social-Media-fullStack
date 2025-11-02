@@ -8,7 +8,29 @@ import { createLike, isLikeExists, deleteLike } from "../dao/like.dao.js"
 /* image , mentions? */
 
 export async function createPostController(req,res){
-    const{mentions} = req.body
+    // Validate user authentication
+    if (!req.user || !req.user._id) {
+        return res.status(401).json({
+            message: "Unauthorized: User not authenticated"
+        })
+    }
+
+    let{mentions} = req.body
+
+    // Parse mentions if it's a JSON string (from FormData)
+    if (typeof mentions === 'string') {
+        try {
+            mentions = JSON.parse(mentions)
+        } catch (e) {
+            // If parsing fails, treat as empty array
+            mentions = []
+        }
+    }
+    
+    // Ensure mentions is an array or undefined
+    if (!mentions || !Array.isArray(mentions)) {
+        mentions = []
+    }
 
     const [file,caption]= await Promise.all([
         uploadFile(req.file,uuidv4()), // 4s
@@ -34,7 +56,9 @@ export async function createPostController(req,res){
 
 
 export async function getPostController(req,res){  
-    const posts = await getPosts(req.query.skip, Math.min(req.query.limit,20))  
+    const skip = parseInt(req.query.skip) || 0
+    const limit = Math.min(parseInt(req.query.limit) || 10, 20)
+    const posts = await getPosts(skip, limit)  
     res.status(200).json({
         message:"Posts fetched successfully",
         posts
@@ -47,6 +71,13 @@ export async function getPostController(req,res){
 
 
 export async function createCommentController(req,res){
+    // Validate user authentication
+    if (!req.user || !req.user._id) {
+        return res.status(401).json({
+            message: "Unauthorized: User not authenticated"
+        })
+    }
+
     const {post,text} = req.body
     const user = req.user
 
@@ -67,6 +98,13 @@ export async function createCommentController(req,res){
 
 
 export async function createLikeController(req,res){
+    // Validate user authentication
+    if (!req.user || !req.user._id) {
+        return res.status(401).json({
+            message: "Unauthorized: User not authenticated"
+        })
+    }
+
     const { post } = req.body
     const user = req.user
 

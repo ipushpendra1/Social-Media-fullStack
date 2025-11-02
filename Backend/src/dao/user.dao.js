@@ -13,3 +13,11 @@ export async function findUser(query) {
 export async function findOneUser(query) {
     return await userModel.findOne(query);
 }
+
+export async function updateUser(query, data) {
+    return await userModel.findOneAndUpdate(
+        query,
+        { $set: data },
+        { new: true } // Return updated document
+    );
+}

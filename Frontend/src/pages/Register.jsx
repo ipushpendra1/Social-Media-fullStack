@@ -1,9 +1,12 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { apiRequest } from '../utils/api.js'
 
 export default function Register() {
   const [form, setForm] = useState({ username: '', email: '', password: '', confirm: '' })
   const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
+  const navigate = useNavigate()
 
   function handleChange(e) {
     const { name, value } = e.target
@@ -11,14 +14,36 @@ export default function Register() {
     if (name === 'confirm' || name === 'password') setError('')
   }
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault()
+    setError('')
+    
     if (form.password !== form.confirm) {
       setError('Passwords do not match')
       return
     }
-    // TODO: hook up to API
-    console.log('Register form submitted', form)
+
+    if (form.password.length < 6) {
+      setError('Password must be at least 6 characters')
+      return
+    }
+
+    setLoading(true)
+    try {
+      await apiRequest('/auth/register', {
+        method: 'POST',
+        body: JSON.stringify({
+          username: form.username,
+          email: form.email,
+          password: form.password
+        })
+      })
+      navigate('/home')
+    } catch (err) {
+      setError(err.message || 'Registration failed. Please try again.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -94,7 +119,9 @@ export default function Register() {
               {error ? <div className="error" role="alert">{error}</div> : null}
             </div>
 
-            <button type="submit" className="btn-block">Create account</button>
+            <button type="submit" className="btn-block" disabled={loading}>
+              {loading ? 'Creating account...' : 'Create account'}
+            </button>
           </form>
 
           <div className="form-footer">

@@ -1,18 +1,38 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { apiRequest } from '../utils/api.js'
 
 export default function Login() {
   const [form, setForm] = useState({ email: '', password: '' })
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
+  const navigate = useNavigate()
 
   function handleChange(e) {
     const { name, value } = e.target
     setForm(prev => ({ ...prev, [name]: value }))
+    if (error) setError('')
   }
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault()
-    // TODO: hook up to API
-    console.log('Login form submitted', form)
+    setError('')
+    setLoading(true)
+
+    try {
+      await apiRequest('/auth/login', {
+        method: 'POST',
+        body: JSON.stringify({
+          email: form.email,
+          password: form.password
+        })
+      })
+      navigate('/home')
+    } catch (err) {
+      setError(err.message || 'Login failed. Please check your credentials.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -56,7 +76,11 @@ export default function Login() {
               />
             </div>
 
-            <button type="submit" className="btn-block">Sign in</button>
+            {error ? <div className="error" role="alert" style={{ marginBottom: '16px' }}>{error}</div> : null}
+
+            <button type="submit" className="btn-block" disabled={loading}>
+              {loading ? 'Signing in...' : 'Sign in'}
+            </button>
           </form>
 
           <div className="form-footer">

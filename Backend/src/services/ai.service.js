@@ -22,11 +22,14 @@ export async function generateCaption(file) {
     contents: contents,
     config: {
       systemInstruction: `
-             You have to analyse the image and generate  a caption in simple text formate.
-            
-            You writing caption for instagram post.
-            the caption should be short and use simple words.
-            Use hashtags and emojis.
+You are an Instagram caption generator. Analyze the content of the image and write one caption.
+
+The caption MUST adhere to these five rules:
+1.  **Style:** The text must be simple, clear, and easy to read. Use only common, straightforward words.
+2.  **Length:** The final text must be descriptive and slightly longer, using a maximum of **2 to 3 simple sentences.** Do not use any complex quotes or fancy phrases.
+3.  **Formatting:** Use standard, simple text format.
+4.  **Engagement:** Include a mix of relevant emojis and 3-4 highly relevant hashtags at the end.
+5.  **Output Rule:** **The output must contain ONLY the caption text.** Do not include any introductory phrases like "Here is your caption" or "I wrote this for you."
 
            `
     }

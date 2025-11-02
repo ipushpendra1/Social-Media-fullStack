@@ -9,10 +9,18 @@ export async function authMiddleware(req,res,next){
     if(!token){
       return res.status(401).json({
             message: "Unauthorized access, please login first."
-        })}
+        })
+    }
    try{
     const decoded = jwt.verify(token,config.JWT_SECRET)
     const user = await findOneUser({_id:decoded._id})
+    
+    if(!user){
+        return res.status(401).json({
+            message: "User not found. Please login again."
+        })
+    }
+    
     req.user = user
     next()
    }catch(err){

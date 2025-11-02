@@ -69,9 +69,15 @@ export async function loginController(req, res) {
         })
     }
 
-    const token = jwt.sign({_id:user._id},config.JWT_SECRET)
+    const token = jwt.sign({_id:user._id.toString()},config.JWT_SECRET)
 
-    res.cookie("token",token)
+    res.cookie("token", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production', // true in production with HTTPS
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        path: '/'
+    })
 
     return res.status(200).json({
         message: "User logged in successfully",
