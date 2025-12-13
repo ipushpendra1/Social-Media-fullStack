@@ -7,21 +7,28 @@ const ai = new GoogleGenAI({
 });
 
 export async function generateCaption(file) {
-  const base64Image = new Buffer.from(file.buffer).toString('base64');
-  const contents = [
-    {
-      inlineData: {
-        mimeType: file.mimetype,
-        data: base64Image,
+  try {
+    // Validate API key
+    if (!config.GEMINI_API_KEY) {
+      throw new Error('GEMINI_API_KEY is not configured')
+    }
+
+    const base64Image = Buffer.from(file.buffer).toString('base64');
+    const contents = [
+      {
+        inlineData: {
+          mimeType: file.mimetype,
+          data: base64Image,
+        },
       },
-    },
-    { text: "Caption this image." }
-  ]
-  const response = await ai.models.generateContent({
-    model: "gemini-2.0-flash",
-    contents: contents,
-    config: {
-      systemInstruction: `
+      { text: "Caption this image." }
+    ]
+    
+    const response = await ai.models.generateContent({
+      model: "gemini-2.0-flash",
+      contents: contents,
+      config: {
+        systemInstruction: `
 You are an Instagram caption generator. Analyze the content of the image and write one caption.
 
 The caption MUST adhere to these five rules:
@@ -32,11 +39,18 @@ The caption MUST adhere to these five rules:
 5.  **Output Rule:** **The output must contain ONLY the caption text.** Do not include any introductory phrases like "Here is your caption" or "I wrote this for you."
 
            `
-    }
-  });
+      }
+    });
 
-  return response.text
-
+    return response.text
+  } catch (error) {
+    console.error('Gemini AI error details:', {
+      message: error.message,
+      stack: error.stack,
+      response: error.response
+    })
+    throw error
+  }
 }
 
 

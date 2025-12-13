@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import Layout from './components/Layout.jsx'
+import ProtectedRoute from './components/ProtectedRoute.jsx'
 import Register from './pages/Register.jsx'
 import Login from './pages/Login.jsx'
 import Home from './pages/Home.jsx'
@@ -19,14 +20,56 @@ export default function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
 
-          {/* App routes with layout (with navigation) */}
+          {/* App routes with layout (with navigation) - Protected */}
           <Route element={<Layout />}>
-            <Route path="/home" element={<Home />} />
-            <Route path="/chat" element={<Chat />} />
-            <Route path="/conversation" element={<Conversation />} />
-            <Route path="/create-post" element={<CreatePost />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/user-search" element={<UserSearch />} />
+            <Route 
+              path="/home" 
+              element={
+                <ProtectedRoute>
+                  <Home />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/chat" 
+              element={
+                <ProtectedRoute>
+                  <Chat />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/conversation" 
+              element={
+                <ProtectedRoute>
+                  <Conversation />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/create-post" 
+              element={
+                <ProtectedRoute>
+                  <CreatePost />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/profile" 
+              element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/user-search" 
+              element={
+                <ProtectedRoute>
+                  <UserSearch />
+                </ProtectedRoute>
+              } 
+            />
           </Route>
           <Route path="*" element={<h2 style={{ padding: 16 }}>404 - Not Found</h2>} />
         </Routes>

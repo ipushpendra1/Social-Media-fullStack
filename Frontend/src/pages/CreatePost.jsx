@@ -78,7 +78,25 @@ export default function CreatePost() {
         navigate('/home')
       }, 1500)
     } catch (err) {
-      setError(err.message || 'Failed to create post. Please try again.')
+      // Provide user-friendly error messages
+      let errorMessage = 'Failed to create post. Please try again.'
+      
+      if (err.isNetworkError) {
+        errorMessage = 'Unable to connect to server. Please make sure the backend server is running on port 3000.'
+      } else if (err.status === 401) {
+        errorMessage = 'You are not logged in. Please log in and try again.'
+      } else if (err.message) {
+        // Show the specific error message from the backend
+        errorMessage = err.message
+        // Add helpful hints for common errors
+        if (err.message.includes('ImageKit')) {
+          errorMessage += ' Please check your ImageKit configuration in the backend.'
+        } else if (err.message.includes('Gemini') || err.message.includes('GEMINI')) {
+          errorMessage += ' Please check your Gemini API key configuration in the backend.'
+        }
+      }
+      
+      setError(errorMessage)
       console.error('Error creating post:', err)
     } finally {
       setLoading(false)

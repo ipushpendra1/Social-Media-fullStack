@@ -29,7 +29,18 @@ export default function Home() {
       setPosts(transformedPosts)
     } catch (err) {
       console.error('Error fetching posts:', err)
-      setError(err.message || 'Failed to load posts')
+      // Provide user-friendly error messages
+      let errorMessage = 'Failed to load posts'
+      
+      if (err.isNetworkError) {
+        errorMessage = 'Unable to connect to server. Please make sure the backend server is running on port 3000.'
+      } else if (err.status === 401) {
+        errorMessage = 'You are not logged in. Please log in and try again.'
+      } else if (err.message) {
+        errorMessage = err.message
+      }
+      
+      setError(errorMessage)
     } finally {
       setLoading(false)
     }
@@ -58,6 +69,7 @@ export default function Home() {
       setPosts(transformedPosts)
     } catch (err) {
       console.error('Error refreshing posts:', err)
+      // Silently handle refresh errors - user can retry if needed
     }
   }
 

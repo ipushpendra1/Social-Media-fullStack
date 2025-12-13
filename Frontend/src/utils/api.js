@@ -21,21 +21,42 @@ export async function apiRequest(endpoint, options = {}) {
     defaultOptions.headers['Content-Type'] = 'application/json'
   }
 
-  const response = await fetch(url, {
-    ...defaultOptions,
-    ...options,
-    headers: {
-      ...defaultOptions.headers,
-      ...options.headers,
-    },
-  })
+  try {
+    const response = await fetch(url, {
+      ...defaultOptions,
+      ...options,
+      headers: {
+        ...defaultOptions.headers,
+        ...options.headers,
+      },
+    })
 
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ message: 'An error occurred' }))
-    throw new Error(error.message || `HTTP error! status: ${response.status}`)
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: 'An error occurred' }))
+      const errorMessage = error.message || `HTTP error! status: ${response.status}`
+      
+      // For 401 errors, create a special error that can be handled
+      if (response.status === 401) {
+        const authError = new Error(errorMessage)
+        authError.status = 401
+        throw authError
+      }
+      
+      throw new Error(errorMessage)
+    }
+
+    return response.json()
+  } catch (error) {
+    // Handle network errors (connection refused, reset, etc.)
+    if (error instanceof TypeError && error.message === 'Failed to fetch') {
+      const networkError = new Error('Unable to connect to server. Please make sure the backend server is running on port 3000.')
+      networkError.isNetworkError = true
+      networkError.originalError = error
+      throw networkError
+    }
+    // Re-throw other errors (including 401)
+    throw error
   }
-
-  return response.json()
 }
 
 /**
@@ -130,6 +151,16 @@ export async function updateProfile(profileData) {
   return apiRequest('/profile', {
     method: 'PUT',
     body: formData,
+  })
+}
+
+/**
+ * Logs out the current user
+ * @returns {Promise<object>}
+ */
+export async function logout() {
+  return apiRequest('/auth/logout', {
+    method: 'POST',
   })
 }
 

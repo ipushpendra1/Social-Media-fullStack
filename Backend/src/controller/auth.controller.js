@@ -92,3 +92,17 @@ export async function loginController(req, res) {
 
 
 }
+
+export async function logoutController(req, res) {
+    res.cookie("token", "", {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+        maxAge: 0, // Expire immediately
+        path: '/'
+    })
+
+    return res.status(200).json({
+        message: "User logged out successfully"
+    })
+}

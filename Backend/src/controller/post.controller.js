@@ -8,47 +8,81 @@ import { createLike, isLikeExists, deleteLike } from "../dao/like.dao.js"
 /* image , mentions? */
 
 export async function createPostController(req,res){
-    // Validate user authentication
-    if (!req.user || !req.user._id) {
-        return res.status(401).json({
-            message: "Unauthorized: User not authenticated"
-        })
-    }
+    try {
+        // Validate user authentication
+        if (!req.user || !req.user._id) {
+            return res.status(401).json({
+                message: "Unauthorized: User not authenticated"
+            })
+        }
 
-    let{mentions} = req.body
+        // Validate file exists
+        if (!req.file) {
+            return res.status(400).json({
+                message: "Image file is required"
+            })
+        }
 
-    // Parse mentions if it's a JSON string (from FormData)
-    if (typeof mentions === 'string') {
-        try {
-            mentions = JSON.parse(mentions)
-        } catch (e) {
-            // If parsing fails, treat as empty array
+        let{mentions} = req.body
+
+        // Parse mentions if it's a JSON string (from FormData)
+        if (typeof mentions === 'string') {
+            try {
+                mentions = JSON.parse(mentions)
+            } catch (e) {
+                // If parsing fails, treat as empty array
+                mentions = []
+            }
+        }
+        
+        // Ensure mentions is an array or undefined
+        if (!mentions || !Array.isArray(mentions)) {
             mentions = []
         }
+
+        // Upload file first (required), then generate caption (optional)
+        let file, caption;
+        
+        try {
+            // Upload file - this is required
+            file = await uploadFile(req.file, uuidv4())
+            console.log('Image uploaded successfully:', file.url)
+        } catch (error) {
+            console.error('Image upload failed:', error)
+            return res.status(500).json({
+                message: error.message || "Failed to upload image. Please check your ImageKit configuration.",
+                error: process.env.NODE_ENV === 'development' ? error.message : undefined
+            })
+        }
+
+        // Generate caption - this is optional, use default if it fails
+        try {
+            caption = await generateCaption(req.file)
+            console.log('Caption generated successfully')
+        } catch (error) {
+            console.error('Caption generation failed, using default:', error.message)
+            // Use a default caption if AI generation fails
+            caption = "Check out this amazing moment! 📸 #photo #moment #life"
+        }
+
+        // Create post in database
+        const post = await createPost({
+            mentions,
+            url: file.url,
+            caption,
+            user: req.user._id
+        })
+
+        res.status(201).json({
+            message:"Post created successfully",
+            post
+        })
+    } catch (error) {
+        console.error('Error creating post:', error)
+        res.status(500).json({
+            message: "An error occurred while creating the post. Please try again."
+        })
     }
-    
-    // Ensure mentions is an array or undefined
-    if (!mentions || !Array.isArray(mentions)) {
-        mentions = []
-    }
-
-    const [file,caption]= await Promise.all([
-        uploadFile(req.file,uuidv4()), // 4s
-        generateCaption(req.file) // 10s
-    ])
-
-    const post = await createPost({
-        mentions,
-        url:file.url,
-        caption,
-        user:req.user._id
-    })
-
-    res.status(201).json({
-        message:"Post created successfully",
-        post
-    })
-    
 }
 
 

@@ -36,15 +36,24 @@ function setupSocket(server) { // http server
         });
 
         socket.on("message", async (msg) => {
-
-            const { receiver /* mongodb id */, message } = msg
-            socket.to(users[ receiver ]).emit("message", message)
-            await createMessage({
-                receiver,
-                sender:socket.user._id,
-                text:message
-            })
-
+            try {
+                const { receiver /* mongodb id */, message } = msg
+                
+                if (!receiver || !message) {
+                    socket.emit("error", { message: "Invalid message format" })
+                    return
+                }
+                
+                socket.to(users[ receiver ]).emit("message", message)
+                await createMessage({
+                    receiver,
+                    sender:socket.user._id,
+                    text:message
+                })
+            } catch (error) {
+                console.error('Error handling socket message:', error)
+                socket.emit("error", { message: "Failed to send message" })
+            }
         })
 
         // Add more event listeners as needed

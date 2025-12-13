@@ -1,12 +1,21 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { apiRequest } from '../utils/api.js'
+import { useAuth } from '../contexts/AuthContext.jsx'
 
 export default function Login() {
   const [form, setForm] = useState({ email: '', password: '' })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
+  const { login, user } = useAuth()
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (user) {
+      navigate('/home', { replace: true })
+    }
+  }, [user, navigate])
 
   function handleChange(e) {
     const { name, value } = e.target
@@ -20,13 +29,15 @@ export default function Login() {
     setLoading(true)
 
     try {
-      await apiRequest('/auth/login', {
+      const response = await apiRequest('/auth/login', {
         method: 'POST',
         body: JSON.stringify({
           email: form.email,
           password: form.password
         })
       })
+      // Update auth context with user data
+      login(response.user)
       navigate('/home')
     } catch (err) {
       setError(err.message || 'Login failed. Please check your credentials.')

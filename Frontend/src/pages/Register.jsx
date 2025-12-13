@@ -1,12 +1,21 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { apiRequest } from '../utils/api.js'
+import { useAuth } from '../contexts/AuthContext.jsx'
 
 export default function Register() {
   const [form, setForm] = useState({ username: '', email: '', password: '', confirm: '' })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
+  const { user } = useAuth()
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (user) {
+      navigate('/home', { replace: true })
+    }
+  }, [user, navigate])
 
   function handleChange(e) {
     const { name, value } = e.target
@@ -38,7 +47,8 @@ export default function Register() {
           password: form.password
         })
       })
-      navigate('/home')
+      // Redirect to login after successful registration
+      navigate('/login', { replace: true })
     } catch (err) {
       setError(err.message || 'Registration failed. Please try again.')
     } finally {
